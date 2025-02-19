@@ -16,6 +16,7 @@ class PrimeServiceTest {
 
     }
 
+    @Test
     void _285191IsPrime() {
         long n = 285191;
         boolean expected = true;
