@@ -15,13 +15,14 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      #Creates JAR file
       - name: Build the package
         run: mvn --batch-mode -DskipTests package
 
       - name: Run the unit tests
         run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
 
-
+      #builds and pushes docker container along with github container
       - name: Build and push the image
         run: |
           docker login --username jentezar --password ${{secrets.ACCESS_TOKEN}} ghcr.io

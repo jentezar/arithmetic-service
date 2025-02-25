@@ -3,7 +3,6 @@ package edu.iu.p466.prime_service.controller;
 import edu.iu.p466.prime_service.model.Customer;
 import edu.iu.p466.prime_service.service.IAuthenticationService;
 import edu.iu.p466.prime_service.service.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,6 +26,7 @@ public class AuthenticationController {
         this.tokenService = tokenService;
     }
 
+    //cals service to register customer
     @PostMapping("/register")
     public boolean register(@RequestBody Customer customer) {
         try {
@@ -35,7 +35,7 @@ public class AuthenticationController {
             throw new RuntimeException(e);
         }
     }
-
+    //returns jwt token if credentials are authorized
     @PostMapping("/login")
     public String login(@RequestBody Customer customer) {
         Authentication authentication = authenticationManager.authenticate(

@@ -25,6 +25,7 @@ public class AuthenticationFileRepository implements IAuthenticationRepository {
     private static final String DATABASE_NAME = "data/customers.txt";
     private static final String NEW_LINE = System.lineSeparator();
 
+    //creates user database if it does not exist
     public AuthenticationFileRepository() {
         File f = new File(DATABASE_NAME);
         f.getParentFile().mkdirs();
@@ -35,6 +36,7 @@ public class AuthenticationFileRepository implements IAuthenticationRepository {
         }
     }
 
+    //function to read database for user credentials
     @Override
     public Customer findByUsername(String username) throws IOException {
         Path path = Paths.get(DATABASE_NAME);
@@ -52,6 +54,7 @@ public class AuthenticationFileRepository implements IAuthenticationRepository {
         return null;
     }
 
+    //saves new customer to file if not there
     @Override
     public boolean save(Customer customer) throws IOException {
         System.out.println(">>> Saving user = " + customer.getUsername());

@@ -30,27 +30,29 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private RSAKey rsaKey;
+    //using previous classes generate rsa key upon initialization
     public SecurityConfig() {
         this.rsaKey = Jwks.generateRsa();
     }
-
+    //rsa into jwk to read
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         JWKSet jwkSet = new JWKSet(rsaKey);
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
-
+    //encoder for jwt token
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwks) {
         return new NimbusJwtEncoder(jwks);
-    }
-
+        }
+    //jwk decoder to validate
     @Bean
     public JwtDecoder jwtDecoder() throws JOSEException {
         return NimbusJwtDecoder
                 .withPublicKey(rsaKey.toRSAPublicKey())
                 .build();
     }
+    //configures security of endpoints
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -66,6 +68,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
+    //authentication manager
     @Bean
     public AuthenticationManager authManager(UserDetailsService userDetailsService) {
         var authProvider = new DaoAuthenticationProvider();

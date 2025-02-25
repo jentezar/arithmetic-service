@@ -10,6 +10,7 @@ import java.util.UUID;
 public class Jwks {
     private Jwks() {}
 
+    //generate rsa key for auth
     public static RSAKey generateRsa() {
         KeyPair keyPair = KeyGeneratorUtils.generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();

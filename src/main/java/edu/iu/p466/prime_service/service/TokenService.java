@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 @Service
 public class TokenService {
     private final JwtEncoder encoder;
-
+    //jwt encoder injection
     public TokenService(JwtEncoder encoder){
         this.encoder = encoder;
     }
-
+    //generates jwt token
     public String generateToken(Authentication authentication){
         Instant now = Instant.now();
         String scope = authentication

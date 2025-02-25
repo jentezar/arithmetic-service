@@ -17,10 +17,11 @@ public class AuthenticationService implements IAuthenticationService, UserDetail
 
     private final IAuthenticationRepository authenticationRepository;
 
+    //authentication repository injection
     public AuthenticationService(IAuthenticationRepository authenticationRepository) {
         this.authenticationRepository = authenticationRepository;
     }
-
+    //hashes password and registers user
     @Override
     public boolean register(Customer customer) throws IOException {
         BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
@@ -29,6 +30,7 @@ public class AuthenticationService implements IAuthenticationService, UserDetail
 
         return authenticationRepository.save(customer);
     }
+    //loads user details 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
@@ -45,6 +47,7 @@ public class AuthenticationService implements IAuthenticationService, UserDetail
             throw new RuntimeException(e);
         }
     }
+    //authenticate user with hashed password
     @Override
     public boolean login(String username, String password) throws IOException {
         Customer customer = authenticationRepository.findByUsername(username);

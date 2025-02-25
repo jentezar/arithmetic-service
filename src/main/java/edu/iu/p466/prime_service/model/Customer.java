@@ -4,6 +4,7 @@ public class Customer {
     private String username;
     private String password;
 
+    //customer credentials constructor 
     public Customer(String username, String password) {
         this.username = username;
         this.password = password;
