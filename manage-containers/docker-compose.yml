@@ -1,4 +1,12 @@
 services:
+  gateway-service:
+    image: gateway-service
+    build:
+      context: ../gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "4000:8180"
   primes-service:
     image: primes-service
     build:
