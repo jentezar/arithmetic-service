@@ -1,4 +1,5 @@
 services:
+<<<<<<< HEAD
   gateway-service:
     image: gateway-service
     build:
@@ -12,6 +13,24 @@ services:
     build:
       context: ../
       dockerfile: Dockerfile
+=======
+
+
+  primes-service-database-postgres:
+    image: postgres:alpine
+    container_name: primes-database
+    ports:
+      - "5001:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: primes
+
+  primes-service:
+    image: primes-service
+    build:
+      context: ../prime-service
+      dockerfile: Dockerfile
+>>>>>>> 01936f9 (commit)
     container_name: primes-service
     ports:
       - "4001:8080"
@@ -20,12 +39,20 @@ services:
       - spring.datasource.url=jdbc:postgresql://primes-database:5432/primes
       - spring.datasource.username=postgres
       - spring.datasource.password=password
+<<<<<<< HEAD
       - logging.level.org.springframework.security=DEBUG
       - logging.level.edu.iu.p466.prime_service=DEBUG
+=======
+      - spring.rabbitmq.host=localhost
+      - spring.rabbitmq.port=5672
+      - spring.rabbitmq.username=guest
+      - spring.rabbitmq.password=guest
+>>>>>>> 01936f9 (commit)
     restart: "no"
     depends_on:
       - primes-service-database-postgres
 
+<<<<<<< HEAD
   primes-service-database-postgres:
     image: postgres:alpine
     container_name: primes-database
@@ -39,3 +66,21 @@ services:
 
 volumes:
   postgres-data:
+=======
+
+
+  gateway-service:
+    image: gateway-service
+    build:
+      context: ../gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "4000:8180"
+    depends_on:
+      - primes-service
+
+    environment:
+      - server.port=8180
+
+>>>>>>> 01936f9 (commit)
