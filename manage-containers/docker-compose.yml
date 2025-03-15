@@ -13,7 +13,7 @@ services:
   primes-service:
     image: primes-service
     build:
-      context: ../prime-service
+      context: ../
       dockerfile: Dockerfile
     container_name: primes-service
     ports:
@@ -30,19 +30,3 @@ services:
     restart: "no"
     depends_on:
       - primes-service-database-postgres
-
-
-
-  gateway-service:
-    image: gateway-service
-    build:
-      context: ../gateway-service
-      dockerfile: Dockerfile
-    container_name: gateway-service
-    ports:
-      - "4000:8180"
-    depends_on:
-      - primes-service
-
-    environment:
-      - server.port=8180
