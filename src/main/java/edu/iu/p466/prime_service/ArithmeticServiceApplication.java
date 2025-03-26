@@ -4,11 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PrimeServiceApplication {
+public class ArithmeticServiceApplication {
 
 	//booter
 	public static void main(String[] args) {
-		SpringApplication.run(PrimeServiceApplication.class, args);
+		SpringApplication.run(ArithmeticServiceApplication.class, args);
 	}
 
 }
