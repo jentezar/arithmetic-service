@@ -22,15 +22,6 @@ jobs:
       - name: Run the unit tests
         run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
 
-      - name: Report test results
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Maven Tests
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
-          fail-on-error: true
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
