@@ -19,6 +19,13 @@ jobs:
       - name: Build the package (no tests)
         run: mvn --batch-mode -DskipTests package
 
+      - name: Create GHCR package
+        run: |
+          curl -X PUT \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.ACCESS_TOKEN }}" \
+            https://api.github.com/user/packages/container/arithmetic-service/versions
+
       - name: Build and push the image
         run: |
           docker login --username jentezari --password ${{secrets.ACCESS_TOKEN}} ghcr.io
