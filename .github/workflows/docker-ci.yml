@@ -34,6 +34,22 @@ jobs:
 
       - name: Publish the image to azure container registry
         run: |
+          # Wait a bit before pushing to Azure
+          sleep 10
+          
+          # Login to Azure Container Registry
           docker login --username practicum7containerregistry --password ${{secrets.AZURE_CONTAINER_REGISTRY}} practicum7containerregistry.azurecr.io
+          
+          # Tag the image
           docker tag ghcr.io/jentezar/arithmetic-service:latest practicum7containerregistry.azurecr.io/arithmetic-service:latest
-          docker push practicum7containerregistry.azurecr.io/arithmetic-service:latest 
+          
+          # Push with retry mechanism
+          for i in {1..3}; do
+            if docker push practicum7containerregistry.azurecr.io/arithmetic-service:latest; then
+              echo "Successfully pushed to Azure Container Registry"
+              break
+            else
+              echo "Attempt $i failed, waiting 10 seconds before retry..."
+              sleep 10
+            fi
+          done 
