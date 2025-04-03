@@ -19,13 +19,6 @@ jobs:
       - name: Build the package
         run: mvn --batch-mode -DskipTests package
 
-      - name: Create GHCR package
-        run: |
-          curl -X PUT \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.ACCESS_TOKEN }}" \
-            https://api.github.com/user/packages/container/arithmetic-service/versions
-
       - name: Build and push the image
         run: |
           docker login --username jentezar --password ${{secrets.ACCESS_TOKEN}} ghcr.io
@@ -34,22 +27,6 @@ jobs:
 
       - name: Publish the image to azure container registry
         run: |
-          # Wait a bit before pushing to Azure
-          sleep 10
-          
-          # Login to Azure Container Registry
-          docker login --username practicum7containerregistry --password ${{secrets.AZURE_CONTAINER_REGISTRY}} practicum7containerregistry.azurecr.io
-          
-          # Tag the image
-          docker tag ghcr.io/jentezar/arithmetic-service:latest practicum7containerregistry.azurecr.io/arithmetic-service:latest
-          
-          # Push with retry mechanism
-          for i in {1..3}; do
-            if docker push practicum7containerregistry.azurecr.io/arithmetic-service:latest; then
-              echo "Successfully pushed to Azure Container Registry"
-              break
-            else
-              echo "Attempt $i failed, waiting 10 seconds before retry..."
-              sleep 10
-            fi
-          done 
+          docker login --username practicumsp466 --password ${{secrets.AZURE_CONTAINER_REGISTRY}} practicumsp466.azurecr.io
+          docker tag ghcr.io/jentezar/arithmetic-service:latest practicumsp466.azurecr.io/arithmetic-service:latest
+          docker push practicumsp466.azurecr.io/arithmetic-service:latest 
