@@ -8,10 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ github.sha }}
-      # The following environment variables map to your secrets
-      CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}    # e.g. "myregistry.azurecr.io"
-      CONTAINER_REGISTRY_UN: ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }}  # e.g. "myregistry-username"
-      CONTAINER_REGISTRY_PW: ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }}  # your actual password
+      CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      CONTAINER_REGISTRY_UN: ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }}
+      CONTAINER_REGISTRY_PW: ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }}
 
     steps:
       - name: Checkout
@@ -34,14 +33,8 @@ jobs:
 
       - name: Publish the image to azure container registry
         run: |
-          docker login \
-            --username $CONTAINER_REGISTRY_UN \
-            --password $CONTAINER_REGISTRY_PW \
-            $CONTAINER_REGISTRY
-
-          docker tag ghcr.io/jentezar/arithmetic-service:latest \
-            $CONTAINER_REGISTRY/arithmetic-service:latest
-
+          docker login --username $CONTAINER_REGISTRY_UN --password $CONTAINER_REGISTRY_PW $CONTAINER_REGISTRY
+          docker tag ghcr.io/jentezar/arithmetic-service:latest $CONTAINER_REGISTRY/arithmetic-service:latest
           docker push $CONTAINER_REGISTRY/arithmetic-service:latest
 
       - name: Publish the versioned image to GHCR
@@ -52,14 +45,8 @@ jobs:
 
       - name: Publish the versioned image to azure container registry
         run: |
-          docker login \
-            --username $CONTAINER_REGISTRY_UN \
-            --password $CONTAINER_REGISTRY_PW \
-            $CONTAINER_REGISTRY
-
-          docker tag ghcr.io/jentezar/arithmetic-service:${{ env.VERSION }} \
-            $CONTAINER_REGISTRY/arithmetic-service:${{ env.VERSION }}
-
+          docker login --username $CONTAINER_REGISTRY_UN --password $CONTAINER_REGISTRY_PW $CONTAINER_REGISTRY
+          docker tag ghcr.io/jentezar/arithmetic-service:${{ env.VERSION }} $CONTAINER_REGISTRY/arithmetic-service:${{ env.VERSION }}
           docker push $CONTAINER_REGISTRY/arithmetic-service:${{ env.VERSION }}
 
       - uses: tale/kubectl-action@v1
