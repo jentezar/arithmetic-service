@@ -8,6 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ github.sha }}
+      # The following environment variables map to your secrets
+      CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}    # e.g. "myregistry.azurecr.io"
+      CONTAINER_REGISTRY_UN: ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }}  # e.g. "myregistry-username"
+      CONTAINER_REGISTRY_PW: ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }}  # your actual password
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -21,28 +26,45 @@ jobs:
       - name: Build the package
         run: mvn --batch-mode -DskipTests package
 
-      - name: Build and push to GitHub Container Registry
+      - name: Build and push the image (latest) to GHCR
         run: |
-          echo "${{ secrets.ACCESS_TOKEN }}" | docker login ghcr.io -u jentezar --password-stdin
-          docker build -t ghcr.io/jentezar/arithmetic-service:$VERSION --file Dockerfile .
-          docker push ghcr.io/jentezar/arithmetic-service:$VERSION
+          docker login --username jentezar --password ${{ secrets.ACCESS_TOKEN }} ghcr.io
+          docker build -t ghcr.io/jentezar/arithmetic-service:latest --file Dockerfile .
+          docker push ghcr.io/jentezar/arithmetic-service:latest
 
-      - name: Publish to Azure Container Registry
+      - name: Publish the image to azure container registry
         run: |
-          echo "${{ secrets.AZURE_CONTAINER_REGISTRY_PW }}" | docker login practicumsp466.azurecr.io -u practicumsp466 --password-stdin
-          docker tag ghcr.io/jentezar/arithmetic-service:$VERSION practicumsp466.azurecr.io/arithmetic-service:$VERSION
-          docker push practicumsp466.azurecr.io/arithmetic-service:$VERSION
+          docker login \
+            --username $CONTAINER_REGISTRY_UN \
+            --password $CONTAINER_REGISTRY_PW \
+            $CONTAINER_REGISTRY
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+          docker tag ghcr.io/jentezar/arithmetic-service:latest \
+            $CONTAINER_REGISTRY/arithmetic-service:latest
+
+          docker push $CONTAINER_REGISTRY/arithmetic-service:latest
+
+      - name: Publish the versioned image to GHCR
+        run: |
+          docker login --username jentezar --password ${{ secrets.ACCESS_TOKEN }} ghcr.io
+          docker build -t ghcr.io/jentezar/arithmetic-service:${{ env.VERSION }} --file Dockerfile .
+          docker push ghcr.io/jentezar/arithmetic-service:${{ env.VERSION }}
+
+      - name: Publish the versioned image to azure container registry
+        run: |
+          docker login \
+            --username $CONTAINER_REGISTRY_UN \
+            --password $CONTAINER_REGISTRY_PW \
+            $CONTAINER_REGISTRY
+
+          docker tag ghcr.io/jentezar/arithmetic-service:${{ env.VERSION }} \
+            $CONTAINER_REGISTRY/arithmetic-service:${{ env.VERSION }}
+
+          docker push $CONTAINER_REGISTRY/arithmetic-service:${{ env.VERSION }}
+
+      - uses: tale/kubectl-action@v1
         with:
-          version: 'latest'
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
 
-      - name: Deploy to Kubernetes
-        env:
-          KUBECONFIG_FILE: ${{ secrets.KUBE_CONFIG }}
-        run: |
-          echo "$KUBECONFIG_FILE" | base64 -d > kubeconfig.yaml
-          export KUBECONFIG=kubeconfig.yaml
-          chmod +x ./deploy.sh
-          ./deploy.sh
+      - name: Deploy
+        run: ./deploy.sh
