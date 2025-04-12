@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ github.sha }}
-      CONTAINER_REGISTRY: practicumsp466.azurecr.io
-
+      CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      CONTAINER_REGISTRY_UN: ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }}
+      CONTAINER_REGISTRY_PW: ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -23,32 +24,27 @@ jobs:
       - name: Build the package
         run: mvn --batch-mode -DskipTests package
 
-      - name: Build and publish to GHCR
+      - name: Build and push the image
+        run: |
+          docker login --username jentezar --password ${{secrets.ACCESS_TOKEN}} ghcr.io
+          docker build -t ghcr.io/jentezar/arithmetic-service:latest --file Dockerfile .
+          docker push ghcr.io/jentezar/arithmetic-service:latest
+
+      - name: Publish the image to azure container registry
+        run: |
+          docker login --username practicumsp466 --password ${{secrets.CONTAINER_REGISTRY_PW}} practicumsp466.azurecr.io
+          docker tag ghcr.io/jentezar/arithmetic-service:latest practicumsp466.azurecr.io/arithmetic-service:latest
+          docker push practicumsp466.azurecr.io/arithmetic-service:latest 
+
+      - name: Publish the image to github container registry
         run: |
           docker login --username jentezar --password ${{secrets.ACCESS_TOKEN}} ghcr.io
           docker build -t ghcr.io/jentezar/arithmetic-service:$VERSION --file Dockerfile .
-          docker tag ghcr.io/jentezar/arithmetic-service:$VERSION ghcr.io/jentezar/arithmetic-service:latest
           docker push ghcr.io/jentezar/arithmetic-service:$VERSION
-          docker push ghcr.io/jentezar/arithmetic-service:latest
 
-      - name: Publish to Azure Container Registry
-        run: |
-          docker login --username ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }} --password ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }} practicumsp466.azurecr.io
-          docker tag ghcr.io/jentezar/arithmetic-service:$VERSION practicumsp466.azurecr.io/arithmetic-service:$VERSION
-          docker push practicumsp466.azurecr.io/arithmetic-service:$VERSION
 
       - uses: tale/kubectl-action@v1
         with:
           base64-kube-config: ${{ secrets.KUBE_CONFIG }}
-      
-      # Create image pull secret before deploying
-      - name: Create Image Pull Secret
-        run: |
-          kubectl create secret docker-registry acr-secret \
-            --docker-server=$CONTAINER_REGISTRY \
-            --docker-username=${{ secrets.AZURE_CONTAINER_REGISTRY_UN }} \
-            --docker-password=${{ secrets.AZURE_CONTAINER_REGISTRY_PW }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-      
       - name: Deploy
         run: ./deploy.sh
