@@ -18,6 +18,8 @@ spec:
       labels:
         app: arithmetic-service
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       containers: 
       - name: arithmetic-service
         image: ${CONTAINER_REGISTRY}/arithmetic-service:${VERSION}
