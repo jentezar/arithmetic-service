@@ -33,9 +33,9 @@ jobs:
 
       - name: Publish to Azure Container Registry
         run: |
-          docker login --username ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }} --password ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }} $CONTAINER_REGISTRY
-          docker tag ghcr.io/jentezar/arithmetic-service:$VERSION $CONTAINER_REGISTRY/arithmetic-service:$VERSION
-          docker push $CONTAINER_REGISTRY/arithmetic-service:$VERSION
+          docker login --username ${{ secrets.AZURE_CONTAINER_REGISTRY_UN }} --password ${{ secrets.AZURE_CONTAINER_REGISTRY_PW }} practicumsp466.azurecr.io
+          docker tag ghcr.io/jentezar/arithmetic-service:$VERSION practicumsp466.azurecr.io/arithmetic-service:$VERSION
+          docker push practicumsp466.azurecr.io/arithmetic-service:$VERSION
 
       - uses: tale/kubectl-action@v1
         with:
