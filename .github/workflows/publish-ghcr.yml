@@ -32,7 +32,7 @@ jobs:
 
       - name: Publish the image to azure container registry
         run: |
-          docker login --username practicumsp466 --password ${{secrets.CONTAINER_REGISTRY_PW}} practicumsp466.azurecr.io
+          echo ${{secrets.CONTAINER_REGISTRY_PW}} | docker login --username practicumsp466 --password-stdin practicumsp466.azurecr.io
           docker tag ghcr.io/jentezar/arithmetic-service:latest practicumsp466.azurecr.io/arithmetic-service:latest
           docker push practicumsp466.azurecr.io/arithmetic-service:latest 
 
